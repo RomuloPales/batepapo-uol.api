@@ -9,7 +9,7 @@ dotenv.config();
 
 const mongoClient = new MongoClient(process.env.DATABASE_URL);
 const PORT = 5000;
-const server = express();
+const app = express();
 let db;
 
 try{
@@ -20,11 +20,11 @@ catch(error){
     console.log("Erro na conexão do servidor!");
 }
 
-server.use(express.json());
-server.use(cors());
-server.listen(PORT);
+app.use(express.json());
+app.use(cors());
+app.listen(PORT);
 
-server.get('/participants', async(req, res) => {
+app.get('/participants', async(req, res) => {
     try{
         const gettingParticipants = await db.collection('participants').find().toArray();
 
@@ -35,7 +35,7 @@ server.get('/participants', async(req, res) => {
     } 
 });
 
-server.get('/messages', async(req, res) => {
+app.get('/messages', async(req, res) => {
     const limite = parseInt(req.query.limite);
     const user = req.headers.user; 
 
@@ -55,7 +55,7 @@ server.get('/messages', async(req, res) => {
     }
 });
 
-server.post('/participants', async(req, res) => {
+app.post('/participants', async(req, res) => {
     const msgUser = joi.object({name: joi.string().required()});
     const userName = {name: req.body.name};
     const userValidation = msgUser.validate(userName);
@@ -78,7 +78,7 @@ server.post('/participants', async(req, res) => {
     }
 });
 
-server.post('/messages', async(req, res) => {
+app.post('/messages', async(req, res) => {
     const {to, text, type} = req.body;
     const userName = req.headers.user; 
     const msgUser = joi.object(
@@ -120,7 +120,7 @@ server.post('/messages', async(req, res) => {
     }
 });
 
-server.post('/status', async(req, res) => {
+app.post('/status', async(req, res) => {
     const user = req.headers.user;
 
     try{
@@ -146,7 +146,7 @@ setInterval(async() => {
         const gettingParticipants = await db.collection('participants').find().toArray();
         
         gettingParticipants.map(async(participant) => {
-            if(participant.lastStatus / 1000 > 10){
+            if(participant.lastStatus / > 1000 ){
                 await db.collection('messages').insertOne(
                     {
                         from: participant.name,
