@@ -146,7 +146,7 @@ setInterval(async() => {
         const gettingParticipants = await db.collection('participants').find().toArray();
         
         gettingParticipants.map(async(participant) => {
-            if(participant.lastStatus / 1000 > 10){
+            if(participant.lastStatus / > 1000){
                 await db.collection('messages').insertOne(
                     {
                         from: participant.name,
